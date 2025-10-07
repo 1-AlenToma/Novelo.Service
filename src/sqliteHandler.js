@@ -2,7 +2,7 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'Novel.sqlite');
+const dbPath = path.join(__dirname, "assets", 'Novel.sqlite');
 const db = new Database(dbPath);
 
 const sqliteHandler = {

@@ -4,8 +4,8 @@
 
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
-!include "nsExec.nsh"
 !include "LogicLib.nsh"
+;!include "nsExec.nsh"
 
 Name "Novelo Service"
 OutFile "NoveloServiceInstaller.exe"
@@ -13,13 +13,15 @@ InstallDir "$PROGRAMFILES\NoveloService"
 RequestExecutionLevel admin
 
 Var StartMenuFolder
+Var UninstallerPath
+
 
 ;--------------------------------
-; Interface
+; MUI Pages
 ;--------------------------------
-
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_LANGUAGE "English"
@@ -31,7 +33,8 @@ Var StartMenuFolder
 Section "Install Novelo Service"
 
   SetOutPath "$INSTDIR"
-  File /r "D:\Projects\Novelo.Service\*.*"
+  File /r "D:\Projects\Novelo.Service\src\*"
+  StrCpy $UninstallerPath "$INSTDIR\Uninstall.exe"
 
   DetailPrint "Checking Node.js installation..."
   nsExec::ExecToStack 'cmd /C node -v >nul 2>&1'
@@ -40,7 +43,6 @@ Section "Install Novelo Service"
 
   ${If} $0 != 0
     DetailPrint "Node.js not found. Installing Node.js LTS..."
-    ; Download Node.js MSI installer
     inetc::get /silent /popup "" "https://nodejs.org/dist/v22.11.0/node-v22.11.0-x64.msi" "$TEMP\node-installer.msi"
     Pop $0
     ${If} $0 == "OK"
@@ -56,16 +58,28 @@ Section "Install Novelo Service"
     DetailPrint "Node.js already installed."
   ${EndIf}
 
-  ; Run npm install
   DetailPrint "Installing npm dependencies..."
   nsExec::ExecToLog 'cmd /C "cd /d $INSTDIR && npm install --omit=dev"'
 
-  ; Register Windows service
   DetailPrint "Registering Windows service..."
   nsExec::ExecToLog 'cmd /C "cd /d $INSTDIR && node service.js"'
 
-  ; Optional: Create desktop shortcut
-  CreateShortCut "$DESKTOP\Novelo Service.lnk" "$INSTDIR\index.html"
+  ; --- Start Menu Shortcut ---
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Novelo Service.lnk" "$INSTDIR\browse.bat" "" "$INSTDIR\assets\icon.ico" 0
+  !insertmacro MUI_STARTMENU_WRITE_END
+
+  ; --- Desktop Shortcut ---
+  CreateShortCut "$DESKTOP\Novelo Service.lnk" "$INSTDIR\browse.bat" "" "$INSTDIR\assets\icon.ico" 0
+  ; Create uninstaller
+  WriteUninstaller "$UninstallerPath"
+  
+  ; Register uninstaller in Add/Remove Programs
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Novelo Service" "DisplayName" "Novelo Service"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Novelo Service" "UninstallString" "$UninstallerPath"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Novelo Service" "InstallLocation" "$INSTDIR"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Novelo Service" "DisplayIcon" "$INSTDIR\assets\icon.ico"
 
   DetailPrint "Installation complete!"
 
@@ -74,15 +88,27 @@ SectionEnd
 ;--------------------------------
 ; Uninstall Section
 ;--------------------------------
-
-Section "Uninstall Novelo Service"
+# uninstaller section start
+Section "uninstall"
 
   DetailPrint "Stopping and removing Novelo Service..."
+  ; Stop service if exists
   nsExec::ExecToLog 'cmd /C "sc stop NoveloService >nul 2>&1"'
-  nsExec::ExecToLog 'cmd /C "sc delete NoveloService >nul 2>&1"'
+  ; Delete service
+   nsExec::ExecToLog 'cmd /C "cd /d $INSTDIR && node uninstall.js"'
+  ;nsExec::ExecToLog 'cmd /C "sc delete NoveloService >nul 2>&1"'
 
+  ; Remove Desktop shortcut
   Delete "$DESKTOP\Novelo Service.lnk"
+
+  ; Remove Start Menu folder & shortcut
+  RMDir /r "$SMPROGRAMS\Novelo Service"
+
+  ; Remove installed files
   RMDir /r "$INSTDIR"
+  
+  ; Remove registry entries
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Novelo Service"
 
   DetailPrint "Uninstallation complete."
 

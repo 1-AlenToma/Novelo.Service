@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 const dbHandler = require("./sqliteHandler");
 const Service = require("node-windows").Service;
 const fs = require("fs");
+const os = require('os');
+const fetch = require('node-fetch');
 let server;
 const connections = new Set();
 const configPath = path.join(__dirname, "config.json");
@@ -31,7 +33,29 @@ const getService = () => {
     })));
 }
 
+// Function to get public IP
+async function getPublicIP() {
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    return data.ip;
+  } catch (err) {
+    console.error('Could not fetch public IP:', err);
+    return 'unknown';
+  }
+}
 
+function getLocalIP() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return '127.0.0.1'; // fallback
+}
 
 // Default config
 if (!fs.existsSync(configPath)) {
@@ -127,7 +151,7 @@ function safeRestart(port) {
 
 function startServer(port) {
     server = app.listen(port, () => {
-        console.log(`✅ Express service running at http://localhost:${port}`);
+        console.log(`✅ Express service running at http://${getLocalIP()}:${port}`);
     });
 
     server.on("connection", (conn) => {
@@ -161,8 +185,8 @@ app.get('/ping', (req, res) => {
     res.status(200).send(true);
 });
 
-app.get("/port", (req, res) => {
-    res.json({ port: config.port });
+app.get("/port", async (req, res) => {
+    res.json({ port: config.port, host: getLocalIP(), pHost: await getPublicIP() });
 });
 
 // --- API: Update port ---

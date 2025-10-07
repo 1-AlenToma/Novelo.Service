@@ -188,7 +188,10 @@
                 const res = await fetch("/port");
                 const data = await res.json();
                 document.getElementById("port").value = data.port;
-                status.textContent = "Server running on port " + data.port;
+                status.innerHTML = `
+                Server running(local) on http://${data.host}:${data.port}<br />
+                Server running(public) on http://${data.pHost}:${data.port} port forwarding required to use
+                `;
             } catch (e) {
                 status.textContent = "Failed to fetch current port.";
             }
