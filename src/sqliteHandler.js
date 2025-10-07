@@ -4,15 +4,21 @@ const path = require('path');
 
 const dbPath = path.join(__dirname, "assets", 'Novel.sqlite');
 const db = new Database(dbPath);
+let sqlLogger = false;
+
 
 const sqliteHandler = {
+    settings: ({ logSql }) => {
+        sqlLogger = logSql;
+    },
     close: async () => {
         db.close();
         console.log('SQLite database closed');
     },
 
     executeSql: async (sql, args = [], operation) => {
-        console.info('Sql Operation:', operation, sql, args);
+        if (sqlLogger)
+            console.info('Sql Operation:', operation, sql, args);
 
         try {
             switch (operation) {

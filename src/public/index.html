@@ -76,7 +76,7 @@
             background-color: #005fa3;
         }
 
-        button:disabled{
+        button:disabled {
             background-color: gray;
         }
 
@@ -92,7 +92,10 @@
     <div class="card">
         <div class="form">
             <h1>Express Service Settings</h1>
-
+            <div>
+                <label>LogSql</label>
+                <input type="checkbox" id="LogSql" style="height: 20px;" />
+            </div>
             <div class="row">
                 <label for="port">Port:</label>
                 <input type="number" id="port" min="1000" max="65535" />
@@ -115,6 +118,14 @@
     </div>
 
     <script>
+
+        document.getElementById("LogSql").addEventListener("change", async () => {
+            await fetch("/settings", {
+                method: "post",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ logSql: document.getElementById("LogSql").checked })
+            });
+        })
 
         const ready = async () => {
             const res = await fetch("/settings");

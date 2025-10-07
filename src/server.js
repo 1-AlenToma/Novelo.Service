@@ -35,26 +35,26 @@ const getService = () => {
 
 // Function to get public IP
 async function getPublicIP() {
-  try {
-    const res = await fetch('https://api.ipify.org?format=json');
-    const data = await res.json();
-    return data.ip;
-  } catch (err) {
-    console.error('Could not fetch public IP:', err);
-    return 'unknown';
-  }
+    try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        return data.ip;
+    } catch (err) {
+        console.error('Could not fetch public IP:', err);
+        return 'unknown';
+    }
 }
 
 function getLocalIP() {
-  const interfaces = os.networkInterfaces();
-  for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      if (iface.family === 'IPv4' && !iface.internal) {
-        return iface.address;
-      }
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+        for (const iface of interfaces[name]) {
+            if (iface.family === 'IPv4' && !iface.internal) {
+                return iface.address;
+            }
+        }
     }
-  }
-  return '127.0.0.1'; // fallback
+    return '127.0.0.1'; // fallback
 }
 
 // Default config
@@ -206,7 +206,8 @@ app.post("/port", (req, res) => {
 app.post('/sql', async (req, res) => {
     const { sql, args, operation } = req.body;
     try {
-        let value = await dbHandler.executeSql(sql, args, operation);
+        let decodedArgs = JSON.parse(Buffer.from(args, 'base64').toString('utf8'))
+        let value = await dbHandler.executeSql(sql, decodedArgs, operation);
         res.status(200).json(value);
     } catch (e) {
         res.json({ message: `Error: ${e}` });
@@ -222,7 +223,12 @@ app.get("/index", (req, res) => {
 });
 
 app.get("/settings", (req, res) => {
-    res.json({ process: process.env.__SERVICE_MODE__ ?? 0});
+    res.json({ process: process.env.__SERVICE_MODE__ ?? 0 });
+});
+
+app.post("/settings", (req, res) => {
+    const settings = req.body;
+    dbHandler.settings(settings);
 });
 
 // --- Start server ---
