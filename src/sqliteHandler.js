@@ -1,10 +1,18 @@
 // sqliteHandler.js
 const Database = require('better-sqlite3');
 const path = require('path');
-
-const dbPath = path.join(__dirname, "assets", 'Novel.sqlite');
+const os = require('os');
+const fs = require("fs");
+const appName = 'NoveloService'; // use your app name
+const baseDir = process.env.ProgramData || 'C:\\ProgramData';
+const dbDir = path.join(baseDir, appName);
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+}
+const dbPath = path.join(dbDir, 'Novelo.sqlite');
 const db = new Database(dbPath);
 let sqlLogger = false;
+console.info("Database Path:", dbPath);
 
 
 const sqliteHandler = {

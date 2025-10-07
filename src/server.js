@@ -7,6 +7,7 @@ const dbHandler = require("./sqliteHandler");
 const Service = require("node-windows").Service;
 const fs = require("fs");
 const os = require('os');
+const Base64 = require("js-base64");
 const fetch = require('node-fetch');
 let server;
 const connections = new Set();
@@ -63,8 +64,10 @@ if (!fs.existsSync(configPath)) {
 }
 
 let config = JSON.parse(fs.readFileSync(configPath));
+
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 
@@ -206,12 +209,12 @@ app.post("/port", (req, res) => {
 app.post('/sql', async (req, res) => {
     const { sql, args, operation } = req.body;
     try {
-        let decodedArgs = JSON.parse(Buffer.from(args, 'base64').toString('utf8'))
+        let decodedArgs = JSON.parse(Base64.decode(args, 'base64'))
         let value = await dbHandler.executeSql(sql, decodedArgs, operation);
         res.status(200).json(value);
     } catch (e) {
         res.json({ message: `Error: ${e}` });
-        console.error(e);
+        console.error(e.message);
     }
     // res.json({ message: 'Hello from Windows service!' });
 });
