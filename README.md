@@ -19,8 +19,8 @@ For public use you will have to open the require port both on router and windows
 
 For Info on how to port forwarding [read here ](https://www.google.com/search?q=windows+port+forward&oq=windows+port+fowr&gs_lcrp=EgZjaHJvbWUqCQgBEAAYDRiABDIGCAAQRRg5MgkIARAAGA0YgAQyCQgCEAAYDRiABDIICAMQABgNGB4yCAgEEAAYDRgeMggIBRAAGA0YHjIICAYQABgNGB4yCAgHEAAYDRgeMgoICBAAGAoYDRgeMggICRAAGA0YHtIBCDc3MjhqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8)
 
-Open `Novelo App` got to `Settings/App Server` and add the `Server running(local)` or `Server running(public)` info.
+Open `Novelo App` go to `Settings/App Server` and add the `Server running(local)` or `Server running(public)` info.
 
 Click save and restart the app.
 
-Now all your data will be saved on your PC and all Novelo apps will be using the data on your PC insetad
+Now all your data will be saved on your PC and Novelo app will be using the data on your PC insetad
