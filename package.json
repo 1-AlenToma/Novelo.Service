@@ -1,0 +1,24 @@
+{
+  "name": "novelo.service",
+  "version": "1.0.0",
+  "description": "Database Service For Novelo App",
+  "main": "service.js",
+  "scripts": {
+    "server": "node server.js",
+    "start": "node service.js",
+    "stop": "node -e \"require('node-windows').Service({name:'NoveloService'}).stop()\"",
+    "serviceStart": "node -e \"require('node-windows').Service({name:'NoveloService'}).start()\"",
+    "uninstall": "node uninstall.js"
+  },
+  "keywords": [
+    "Novelo db Service"
+  ],
+  "author": "Alen Toma",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "express": "^5.1.0",
+    "node-windows": "^1.0.0-beta.8"
+  }
+}

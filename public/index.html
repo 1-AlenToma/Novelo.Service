@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Express Server Control Panel</title>
+
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f2f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 24px 32px;
+            width: 90vw;
+            text-align: center;
+            height: 90vh;
+        }
+
+        .form {
+            width: 100%;
+            height: 35%;
+        }
+
+        h1 {
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        input {
+            padding: 8px 12px;
+            font-size: 16px;
+            width: 120px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #0078d7;
+        }
+
+        button {
+            padding: 10px 16px;
+            font-size: 16px;
+            border: none;
+            background-color: #0078d7;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-left: 8px;
+        }
+
+        button:hover {
+            background-color: #005fa3;
+        }
+
+        button:disabled{
+            background-color: gray;
+        }
+
+        .status {
+            margin-top: 16px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="form">
+            <h1>Express Service Settings</h1>
+
+            <div class="row">
+                <label for="port">Port:</label>
+                <input type="number" id="port" min="1000" max="65535" />
+                <button id="saveBtn">Save</button>
+            </div>
+            <div class="status" id="status">Loading...</div>
+
+            <div class="row">
+                <button id="installBtn">Install Service</button>
+                <button id="uninstallBtn">Uninstall Service</button>
+            </div>
+            <div id="serviceStatus" class="status"></div>
+
+
+        </div>
+        <h3>Server Console:</h3>
+        <pre id="consoleLog"
+            style="height:50%; overflow-y:auto; white-space: pre-line; text-overflow: ellipsis; text-align: left; background:#1e1e1e; color:#0f0; padding:8px; border-radius:8px;">
+        </pre>
+    </div>
+
+    <script>
+
+        const ready = async () => {
+            const res = await fetch("/settings");
+            window.ServiceSettings = await res.json();
+            if (window.ServiceSettings.process == "1")
+                document.getElementById("uninstallBtn").setAttribute("disabled", "disabled")
+        }
+        document.getElementById("installBtn").addEventListener("click", async () => {
+            const status = document.getElementById("serviceStatus");
+            status.textContent = "Installing service...";
+            try {
+                const res = await fetch("/service/install", { method: "POST" });
+                const data = await res.json();
+                status.textContent = data.message || "Service installed";
+            } catch (e) {
+                status.textContent = "Error installing service";
+                console.error(e);
+            }
+        });
+
+        document.getElementById("uninstallBtn").addEventListener("click", async () => {
+            const status = document.getElementById("serviceStatus");
+            status.textContent = "Uninstalling service...";
+            try {
+                const res = await fetch("/service/uninstall", { method: "POST" });
+                const data = await res.json();
+                status.textContent = data.message || "Service uninstalled";
+            } catch (e) {
+                status.textContent = "Error uninstalling service";
+                console.error(e);
+            }
+        });
+        ready();
+    </script>
+
+
+    <script>
+
+        const consoleEl = document.getElementById("consoleLog");
+        const evtSource = new EventSource("/logs");
+
+        evtSource.onmessage = (event) => {
+            const { type, message } = JSON.parse(event.data);
+
+            let color;
+            switch (type) {
+                case 'error': color = 'red'; break;
+                case 'info': color = 'cyan'; break;
+                default: color = 'lightgreen';
+            }
+
+            const line = document.createElement("div");
+            line.style.color = color;
+            line.textContent = message;
+            consoleEl.appendChild(line);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        };
+
+        /*
+          evtSource.onclose = () => {
+              setTimeout(() => {
+                  evtSource = new EventSource("/logs");
+              }, 1000);
+          };*/
+    </script>
+
+    <script>
+        async function loadPort() {
+            const status = document.getElementById("status");
+            try {
+                const res = await fetch("/port");
+                const data = await res.json();
+                document.getElementById("port").value = data.port;
+                status.textContent = "Server running on port " + data.port;
+            } catch (e) {
+                status.textContent = "Failed to fetch current port.";
+            }
+        }
+
+        document.getElementById("saveBtn").addEventListener("click", async () => {
+            const port = parseInt(document.getElementById("port").value);
+            const status = document.getElementById("status");
+            status.textContent = "Saving...";
+            try {
+                const res = await fetch("/port", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ port }),
+                });
+                const data = await res.json();
+                status.textContent = data.message || "Port updated successfully.";
+                setTimeout(() => {
+                    const newUrl = `${window.location.protocol}//${window.location.hostname}:${port}`;
+                    status.textContent = "Reconnecting to " + newUrl + " ...";
+                    window.location.href = newUrl;
+                }, 2000);
+            } catch (e) {
+                status.textContent = "Error saving port.";
+            }
+        });
+
+        loadPort();
+    </script>
+</body>
+
+</html>
