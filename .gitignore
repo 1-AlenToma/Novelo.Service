@@ -7,7 +7,7 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-deamon
+daemon/
 novel.sqlite
 novel.sqlite-shm
 novel.sqlite-wal
