@@ -11,8 +11,8 @@ If you want to be able to access your [Novels](https://github.com/1-AlenToma/Nov
 * On the page you will see something like this
 
 ```
-Server running(local) on http://192.168.1.239:5002
-Server running(public) on http://194.237.234.194:5002 port forwarding required to use
+Server running(local) on http://192.168.1.256:5002
+Server running(public) on http://194.237.234.174:5002 port forwarding required to use
 ```
 
 For public use you will have to open the require port both on router and windows firewall.
