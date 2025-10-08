@@ -146,6 +146,7 @@ app.get("/logs", (req, res) => {
 function safeRestart(port) {
     if (process.env.__SERVICE_MODE__ === "1") {
         // running under a service manager
+        console.log("Is a service, restart service")
         setTimeout(() => process.exit(0), 1000);
     } else {
         restartServer(port); // restart internally

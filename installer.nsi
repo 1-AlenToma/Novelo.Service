@@ -33,7 +33,8 @@ Var UninstallerPath
 Section "Install Novelo Service"
 
   SetOutPath "$INSTDIR"
-  File /r "D:\Projects\Novelo.Service\src\*"
+  File /r "D:\Projects\Novelo.Service\src\express\*"
+  File /r "D:\Projects\Novelo.Service\src\ExpressServiceControlPanel\bin\Release\net8.0-windows\win-x86\publish\ExpressServiceControlPanel.exe"
   StrCpy $UninstallerPath "$INSTDIR\Uninstall.exe"
 
   DetailPrint "Checking Node.js installation..."
@@ -67,11 +68,11 @@ Section "Install Novelo Service"
   ; --- Start Menu Shortcut ---
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Novelo Service.lnk" "$INSTDIR\browse.bat" "" "$INSTDIR\assets\icon.ico" 0
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Novelo Service.lnk" "$INSTDIR\ExpressServiceControlPanel.exe" "" "$INSTDIR\assets\icon.ico" 0
   !insertmacro MUI_STARTMENU_WRITE_END
 
   ; --- Desktop Shortcut ---
-  CreateShortCut "$DESKTOP\Novelo Service.lnk" "$INSTDIR\browse.bat" "" "$INSTDIR\assets\icon.ico" 0
+  CreateShortCut "$DESKTOP\Novelo Service.lnk" "$INSTDIR\ExpressServiceControlPanel.exe" "" "$INSTDIR\assets\icon.ico" 0
   ; Create uninstaller
   WriteUninstaller "$UninstallerPath"
   
