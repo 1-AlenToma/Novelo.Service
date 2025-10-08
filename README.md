@@ -6,7 +6,7 @@ If you want to be able to access your [Novels](https://github.com/1-AlenToma/Nov
 
 * Open `Novelo Service` that will exist on desktop.
 
-* Configure which `port` to use default is `5002` or `5020`
+* Configure which `port` to use default could be `5002`
 
 * On the app you will see something like this
 
