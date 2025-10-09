@@ -25,4 +25,4 @@ Click save and restart the app.
 
 Now all your data will be saved on your PC and Novelo app will be using the data on your PC insetad
 
-![Image](https://github.com/1-AlenToma/Novelo.Service/blob/main/Screenshot.jpg?raw=true)
+![Image](https://github.com/1-AlenToma/Novelo.Service/blob/main/Screenshot.jpg)
