@@ -1,5 +1,6 @@
 const patchConsole = require("./consolePatcher");
 patchConsole.patch("log", "error", "info");
+const { loadChromium } = require("./htmlService");
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -234,6 +235,8 @@ app.post("/settings", (req, res) => {
     const settings = req.body;
     dbHandler.settings(settings);
 });
+
+loadChromium(app);
 
 // --- Start server ---
 restartServer(config.port);

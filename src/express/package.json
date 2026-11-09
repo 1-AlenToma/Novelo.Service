@@ -21,6 +21,12 @@
     "express": "^5.1.0",
     "js-base64": "^3.7.8",
     "node-fetch": "^2.7.0",
-    "node-windows": "^1.0.0-beta.8"
+    "node-windows": "^1.0.0-beta.8",
+    "playwright": "^1.65.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.4.1": true
   }
 }
