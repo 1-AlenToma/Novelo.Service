@@ -24,3 +24,5 @@ Open `Novelo App` go to `Settings/App Server` and add the `Server running(local)
 Click save and restart the app.
 
 Now all your data will be saved on your PC and Novelo app will be using the data on your PC insetad
+
+![Image](https://github.com/1-AlenToma/Novelo.Service/blob/main/Screenshot.jpg)
